@@ -900,6 +900,11 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         
+        // 確実に初期化されるまで待つ
+        if (!canvasWidth || !canvasHeight) {
+            resizeCanvas();
+        }
+        
         // ゲーム状態
         let gameState = {
             score: 0,
@@ -917,7 +922,8 @@
                 this.height = 25;
                 this.x = canvasWidth / 2 - this.width / 2;
                 this.y = canvasHeight - 60;
-                this.speed = 5;
+                // スマホでは移動速度をやや速く（コンストラクタ内で判定）
+                this.speed = (canvasWidth && canvasWidth < 600) ? 6 : 5;
                 this.color = '#00ff00';
             }
             
@@ -952,7 +958,11 @@
                 this.y = y;
                 this.width = 3;
                 this.height = 10;
-                this.speed = isPlayer ? -7 : 4;
+                // スマホでは弾速を調整（コンストラクタ内で判定）
+                const isMobile = canvasWidth && canvasWidth < 600;
+                this.speed = isPlayer 
+                    ? (isMobile ? -9 : -7)  // プレイヤーの弾は速く
+                    : (isMobile ? 3 : 4);    // 敵の弾は遅く
                 this.isPlayer = isPlayer;
                 this.color = isPlayer ? '#00ff00' : '#ff0000';
             }
@@ -1097,20 +1107,25 @@
         };
         
         function init() {
+            // 画面サイズ判定
+            const isMobile = canvasWidth < 600;
+            
             player = new Player();
             bullets = [];
             invaders = [];
             shields = [];
             invaderDirection = 1;
-            invaderSpeed = 1 + (gameState.level - 1) * 0.3;
             
-            // インベーダーの生成
+            // スマホ対応：画面サイズに応じて速度調整
+            invaderSpeed = isMobile ? 0.5 + (gameState.level - 1) * 0.2 : 1 + (gameState.level - 1) * 0.3;
+            
+            // インベーダーの生成（スマホでは配置を調整）
             const rows = 5;
-            const cols = 11;
-            const startX = 50;
-            const startY = 50;
-            const spacingX = 45;
-            const spacingY = 40;
+            const cols = isMobile ? 8 : 11;
+            const startX = isMobile ? 20 : 50;
+            const startY = isMobile ? 30 : 50;
+            const spacingX = isMobile ? Math.floor((canvasWidth - 40) / cols) : 45;
+            const spacingY = isMobile ? 30 : 40;
             
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
@@ -1123,11 +1138,12 @@
                 }
             }
             
-            // シールドの生成
-            const shieldY = canvasHeight - 150;
-            const shieldSpacing = canvasWidth / 5;
-            for (let i = 0; i < 4; i++) {
-                shields.push(new Shield(shieldSpacing * (i + 0.5), shieldY));
+            // シールドの生成（スマホでは位置を調整）
+            const shieldY = isMobile ? canvasHeight - 180 : canvasHeight - 150;
+            const shieldCount = isMobile ? 3 : 4;
+            const shieldSpacing = canvasWidth / (shieldCount + 1);
+            for (let i = 0; i < shieldCount; i++) {
+                shields.push(new Shield(shieldSpacing * (i + 1) - 30, shieldY));
             }
             
             updateLives();
@@ -1297,8 +1313,9 @@
                 personalityData.recklessExposure += 16;
             }
             
-            // プレイヤー射撃
-            if (keys.space && Date.now() - lastShot > 500) {
+            // プレイヤー射撃（スマホでは間隔を短く）
+            const shotCooldown = canvasWidth < 600 ? 350 : 500;
+            if (keys.space && Date.now() - lastShot > shotCooldown) {
                 const now = Date.now();
                 const timeSinceLastShot = now - personalityData.lastShotTime;
                 
@@ -1402,22 +1419,27 @@
             invaders.forEach(invader => {
                 if (invader.alive) {
                     if (moveDown) {
-                        invader.y += 20;
+                        // スマホでは下降幅を小さく
+                        const dropDistance = canvasWidth < 600 ? 10 : 20;
+                        invader.y += dropDistance;
                     } else {
                         invader.x += invaderDirection * invaderSpeed;
                     }
                     invader.draw();
                     
                     // ゲームオーバー判定（インベーダーが下に到達）
-                    if (invader.y + invader.height >= player.y) {
+                    // スマホではより余裕を持たせる
+                    const dangerZone = canvasWidth < 600 ? player.y - 20 : player.y;
+                    if (invader.y + invader.height >= dangerZone) {
                         gameState.lives = 0;
                         endGame();
                     }
                 }
             });
             
-            // インベーダーの射撃
-            if (Date.now() - lastInvaderShot > 1000 && aliveInvaders.length > 0) {
+            // インベーダーの射撃（スマホでは頻度を下げる）
+            const shotInterval = canvasWidth < 600 ? 1500 : 1000;
+            if (Date.now() - lastInvaderShot > shotInterval && aliveInvaders.length > 0) {
                 const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
                 bullets.push(new Bullet(shooter.x + shooter.width / 2, shooter.y + shooter.height, false));
                 playSound('invaderShoot');
