@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>INVADER TYPE - 行動タイプ診断ゲーム</title>
+    <title>INVADER TYPE - 行動分析システム</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
@@ -180,67 +180,57 @@
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
         
-        .personality-panel {
+        .live-metrics {
             position: absolute;
             top: 60px;
             right: 20px;
-            width: 200px;
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #00ff00;
-            padding: 15px;
             font-size: 8px;
-            line-height: 1.8;
+            line-height: 2;
+            text-shadow: 0 0 10px #00ff00;
             z-index: 100;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-            display: none;
+            pointer-events: none;
+            display: block; /* デバッグ: 常に表示 */
+            background: rgba(0, 0, 0, 0.8); /* 背景追加で見やすく */
+            padding: 10px;
+            border: 1px solid #00ff00;
         }
         
-        .personality-panel.active {
+        .live-metrics.active {
             display: block;
         }
         
-        .personality-title {
-            font-size: 9px;
-            text-align: center;
-            margin-bottom: 10px;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
-        }
-        
-        .mbti-bar {
-            margin-bottom: 10px;
-        }
-        
-        .mbti-bar-label {
+        .metric-row {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 3px;
-            font-size: 7px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
         }
         
-        .mbti-bar-track {
-            background: #003300;
-            height: 6px;
+        .metric-label {
+            width: 50px;
+        }
+        
+        .metric-bar {
+            width: 60px;
+            height: 8px;
+            background: #001100;
+            border: 1px solid #003300;
             position: relative;
-            border: 1px solid #006600;
         }
         
-        .mbti-bar-fill {
-            background: linear-gradient(90deg, #00ff00, #00cc00);
+        .metric-fill {
             height: 100%;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+            transition: width 0.3s ease, background-color 0.3s ease;
         }
         
-        .mbti-current {
-            text-align: center;
-            font-size: 10px;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid #00ff00;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
+        .metric-value {
+            width: 40px;
+            text-align: right;
         }
+        
+        .danger-low { background: #00ff00; }
+        .danger-medium { background: #ffff00; }
+        .danger-high { background: #ff0000; }
         
         .mobile-controls {
             position: absolute;
@@ -256,120 +246,58 @@
         
         @media (max-width: 600px) {
             .mobile-controls {
-                bottom: 15px;
-                padding: 0 15px;
+                display: flex;
+            }
+            .live-metrics {
+                top: 45px;
+                right: 10px;
+                font-size: 6px;
+            }
+            .metric-label {
+                width: 30px;
+            }
+            .metric-bar {
+                width: 40px;
+                height: 6px;
+            }
+            .metric-value {
+                width: 30px;
+                font-size: 6px;
             }
         }
         
         .control-btn {
-            width: 70px;
-            height: 70px;
+            width: 60px;
+            height: 60px;
             background: rgba(0, 255, 0, 0.2);
             border: 2px solid #00ff00;
-            border-radius: 10px;
+            border-radius: 8px;
             color: #00ff00;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 24px;
+            font-size: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             user-select: none;
-            -webkit-user-select: none;
             touch-action: manipulation;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-            transition: all 0.1s;
         }
         
         .control-btn:active {
             background: rgba(0, 255, 0, 0.4);
-            box-shadow: 0 0 30px rgba(0, 255, 0, 0.6);
             transform: scale(0.95);
         }
         
         .fire-btn {
-            width: 80px;
-            height: 80px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
-            font-size: 12px;
+            font-size: 10px;
         }
         
         .direction-controls {
             display: flex;
-            gap: 15px;
-        }
-        
-        @media (max-width: 600px) {
-            .control-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 12px;
-                border-radius: 5px;
-            }
-            .fire-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 6px;
-            }
-            .direction-controls {
-                gap: 8px;
-            }
-        }
-        
-        @media (max-width: 600px) {
-            .mobile-controls {
-                display: flex;
-            }
-            .desktop-only {
-                display: none;
-            }
-            .personality-panel {
-                top: 45px;
-                right: 5px;
-                left: auto;
-                width: 30%;
-                min-width: 140px;
-                font-size: 5px;
-                padding: 5px;
-                line-height: 1.4;
-            }
-            .personality-title {
-                font-size: 5px;
-                margin-bottom: 5px;
-            }
-            .mbti-bar {
-                margin-bottom: 5px;
-            }
-            .mbti-bar-label {
-                font-size: 4px;
-                margin-bottom: 2px;
-            }
-            .mbti-bar-track {
-                height: 4px;
-            }
-            .mbti-current {
-                font-size: 6px;
-                margin-top: 5px;
-                padding-top: 5px;
-            }
-            .game-ui {
-                padding: 8px;
-            }
-            .score-panel {
-                font-size: 7px;
-                flex-wrap: wrap;
-                width: 65%;
-            }
-            .score-panel > div {
-                margin-right: 8px;
-            }
-            .lives {
-                margin-top: 3px;
-            }
-            .life-icon {
-                width: 15px;
-                height: 9px;
-            }
+            gap: 10px;
         }
         
         @media (min-width: 601px) {
@@ -379,29 +307,76 @@
         }
         
         @media (max-width: 600px) {
-            .score-panel {
-                font-size: 8px;
+            .desktop-only {
+                display: none;
             }
             .start-screen h1, .game-over-screen h1 {
-                font-size: 16px;
+                font-size: 18px;
             }
             .instructions {
                 font-size: 8px;
             }
             .start-button, .retry-button {
                 font-size: 10px;
-                padding: 10px 20px;
+                padding: 12px 24px;
             }
-            #mbtiResult {
-                font-size: 8px !important;
-                padding: 0 10px;
-            }
-            #mbtiResult > div:first-child > div:first-child {
-                font-size: 16px !important;
-            }
-            #mbtiResult > div:first-child > div:nth-child(2) {
-                font-size: 10px !important;
-            }
+        }
+        
+        .result-container {
+            max-width: 600px;
+            width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.4);
+        }
+        
+        .rare-title {
+            font-size: 16px;
+            color: #ffff00;
+            text-shadow: 0 0 20px #ffff00;
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .main-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .tagline {
+            font-size: 9px;
+            color: #00cc00;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .mini-titles {
+            font-size: 8px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .comments {
+            font-size: 8px;
+            line-height: 1.8;
+            color: #00aa00;
+            margin-bottom: 20px;
+            border-top: 1px solid #004400;
+            padding-top: 15px;
+        }
+        
+        .metrics {
+            font-size: 7px;
+            color: #008800;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -420,89 +395,59 @@
             </div>
         </div>
         
-        <div class="personality-panel" id="personalityPanel">
-            <div class="personality-title">行動分析中...</div>
-            
-            <div class="mbti-bar">
-                <div class="mbti-bar-label">
-                    <span>E</span>
-                    <span id="eiPercent">50%</span>
-                    <span>I</span>
+        <div class="live-metrics" id="liveMetrics">
+            <div class="metric-row">
+                <div class="metric-label">ATTACK</div>
+                <div class="metric-bar">
+                    <div class="metric-fill" id="attackBar" style="width: 0%; background: #00ff00;"></div>
                 </div>
-                <div class="mbti-bar-track">
-                    <div class="mbti-bar-fill" id="eiBar" style="width: 50%"></div>
-                </div>
+                <div class="metric-value" id="attackValue">0.0</div>
             </div>
-            
-            <div class="mbti-bar">
-                <div class="mbti-bar-label">
-                    <span>S</span>
-                    <span id="snPercent">50%</span>
-                    <span>N</span>
+            <div class="metric-row">
+                <div class="metric-label">DANGER</div>
+                <div class="metric-bar">
+                    <div class="metric-fill danger-low" id="dangerBar" style="width: 0%;"></div>
                 </div>
-                <div class="mbti-bar-track">
-                    <div class="mbti-bar-fill" id="snBar" style="width: 50%"></div>
-                </div>
+                <div class="metric-value" id="dangerValue">0%</div>
             </div>
-            
-            <div class="mbti-bar">
-                <div class="mbti-bar-label">
-                    <span>T</span>
-                    <span id="tfPercent">50%</span>
-                    <span>F</span>
+            <div class="metric-row">
+                <div class="metric-label">PRECIS</div>
+                <div class="metric-bar">
+                    <div class="metric-fill" id="precisionBar" style="width: 0%; background: #00ff00;"></div>
                 </div>
-                <div class="mbti-bar-track">
-                    <div class="mbti-bar-fill" id="tfBar" style="width: 50%"></div>
-                </div>
-            </div>
-            
-            <div class="mbti-bar">
-                <div class="mbti-bar-label">
-                    <span>J</span>
-                    <span id="jpPercent">50%</span>
-                    <span>P</span>
-                </div>
-                <div class="mbti-bar-track">
-                    <div class="mbti-bar-fill" id="jpBar" style="width: 50%"></div>
-                </div>
-            </div>
-            
-            <div class="mbti-current">
-                <span id="currentMBTI">----</span>
+                <div class="metric-value" id="precisionValue">--</div>
             </div>
         </div>
         
         <div class="start-screen" id="startScreen">
-            <h1>INVADER<br>TYPE</h1>
+            <h1>INVADER<br>ANALYZER</h1>
             <div class="instructions">
                 <span class="desktop-only">← → : 移動<br>SPACE : 発射</span>
                 <span class="mobile-only">画面下のボタンで操作</span>
-                <br>
-                <br>
+                <br><br>
                 インベーダーを倒して<br>
-                あなたの行動タイプを<br>
+                あなたの行動パターンを<br>
                 分析します！<br>
                 <br>
                 <span style="font-size: 8px; color: #00aa00;">
                 プレイスタイルから<br>
-                行動傾向を可視化
+                専用称号を生成
                 </span>
             </div>
-            <button class="start-button" id="startButton">START GAME</button>
+            <button class="start-button" id="startButton">START ANALYSIS</button>
         </div>
         
         <div class="game-over-screen hidden" id="gameOverScreen">
-            <h1>GAME OVER</h1>
+            <h1>ANALYSIS COMPLETE</h1>
             <div class="instructions">
                 FINAL SCORE: <span id="finalScore">0000</span>
             </div>
-            <div id="mbtiResult" style="margin: 30px 0; max-width: 600px; text-align: left; line-height: 1.8; font-size: 10px;">
-                <!-- MBTI診断結果がここに表示されます -->
+            <div class="result-container" id="resultContainer">
             </div>
-            <button class="retry-button" id="retryButton">RETRY</button>
+            <button class="retry-button" id="retryButton" style="margin-top: 20px;">RETRY</button>
         </div>
         
-        <div class="mobile-controls" id="mobileControls">
+        <div class="mobile-controls">
             <div class="direction-controls">
                 <div class="control-btn" id="leftBtn">◀</div>
                 <div class="control-btn" id="rightBtn">▶</div>
@@ -522,375 +467,303 @@
         const hiScoreEl = document.getElementById('hiScore');
         const finalScoreEl = document.getElementById('finalScore');
         const livesContainer = document.getElementById('livesContainer');
+        const resultContainer = document.getElementById('resultContainer');
         
-        // 効果音システム
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        // 効果音（ユーザーインタラクション後に初期化）
+        let audioContext = null;
         
-        // 性格診断用のデータ収集（拡張版）
-        let personalityData = {
-            // 基本射撃データ
-            totalShots: 0,
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+        
+        // ===== トラッカー =====
+        const tracker = {
+            tStart: 0,
+            tEnd: 0,
+            shots: 0,
             hits: 0,
-            misses: 0,
+            kills: 0,
+            moveDist: 0,
+            turns: 0,
+            dangerTime: 0,
+            lifeLost: 0,
+            lastHitAt: -Infinity,
+            postHitWindowMs: 2500,
+            postHitShots: 0,
+            postHitMove: 0,
+            lastX: null,
+            lastMoveDir: 0,
             
-            // 移動データ
-            leftMoves: 0,
-            rightMoves: 0,
-            totalMoveDistance: 0,
-            movementPattern: [],
-            positionHistory: [],
-            stayInCenterTime: 0,
-            stayInEdgeTime: 0,
-            rapidDirectionChanges: 0,
+            // リアルタイム指標用（直近3秒）
+            recentShots: [],      // [{time, hit}]
+            recentDanger: [],     // [{time, danger}]
+            windowMs: 3000,
             
-            // 射撃パターン
-            timeBetweenShots: [],
-            shotPositions: [],
-            shotWhileMoving: 0,
-            shotWhileStill: 0,
-            rapidFireCount: 0,
-            sniperShots: 0, // 長時間待ってから撃った回数
-            panicShots: 0,  // 連続超高速射撃
+            start(now, playerX) {
+                this.tStart = now;
+                this.lastX = playerX;
+                this.recentShots = [];
+                this.recentDanger = [];
+            },
             
-            // インベーダー関連
-            invadersByType: {0: 0, 1: 0, 2: 0},
-            highValueTargets: 0,  // 高得点敵を優先
-            lowValueTargets: 0,   // 低得点敵を優先
-            closestKills: 0,      // 最も近い敵を倒した回数
-            farthestKills: 0,     // 最も遠い敵を倒した回数
+            end(now) {
+                this.tEnd = now;
+            },
             
-            // シールド関連
-            shieldHits: 0,
-            ownShieldDamage: 0,      // 自分でシールドを壊した回数
-            shieldProtectionUsage: 0, // シールドの後ろにいた時間
-            recklessExposure: 0,      // 無防備な時間
+            onShoot(now, hit = false) {
+                this.shots++;
+                this.recentShots.push({ time: now, hit: hit });
+                console.log('Shot recorded:', { time: now, hit: hit, total: this.recentShots.length });
+                if (now - this.lastHitAt <= this.postHitWindowMs) this.postHitShots++;
+            },
             
-            // 戦術データ
-            cautiousWaitTime: 0,
-            aggressiveMoves: 0,
-            defensiveMoves: 0,
-            cornerUseCount: 0,        // 端に逃げた回数
-            centerHoldCount: 0,       // 中央を維持した回数
-            retreatCount: 0,          // 後退した回数
-            advanceCount: 0,          // 前進（敵に近づく）回数
+            onHitEnemy() {
+                this.hits++;
+            },
             
-            // リスク行動
-            dangerZoneShooting: 0,    // 敵弾が近い時の射撃
-            lastSecondDodge: 0,       // ギリギリ回避
-            closeCallCount: 0,        // ニアミス回数
-            perfectDodgeCount: 0,     // 完璧な回避
+            onKillEnemy() {
+                this.kills++;
+            },
             
-            // パターン分析
-            movementVariety: 0,
-            shootingRhythm: [],
-            reactionTimes: [],
-            decisionSpeed: [],
+            onLifeLost(now) {
+                this.lifeLost++;
+                this.lastHitAt = now;
+                this.postHitShots = 0;
+                this.postHitMove = 0;
+            },
             
-            // 連続性データ
-            consecutiveHits: 0,
-            maxConsecutiveHits: 0,
-            consecutiveMisses: 0,
-            maxConsecutiveMisses: 0,
-            
-            // タイミング
-            playTime: 0,
-            startTime: 0,
-            lastMoveTime: 0,
-            lastShotTime: 0,
-            lastPositionChangeTime: 0,
-            
-            // 効率性
-            wantedShots: 0,           // 有効なタイミングの射撃
-            wastedShots: 0,           // 無駄撃ち
-            optimalPositioning: 0,     // 最適位置にいた時間
-            poorPositioning: 0,        // 悪い位置にいた時間
-            
-            // 安定性
-            erraticMovement: 0,        // 不規則な動き
-            steadyMovement: 0,         // 安定した動き
-            consistencyScore: 0,       // 一貫性スコア
-            adaptabilityScore: 0,      // 適応性スコア
+            update(now, dtMs, playerX, dangerFlag) {
+                if (this.lastX != null) {
+                    const dx = Math.abs(playerX - this.lastX);
+                    this.moveDist += dx;
+                    if (now - this.lastHitAt <= this.postHitWindowMs) this.postHitMove += dx;
+                    
+                    const dir = (playerX > this.lastX) ? 1 : (playerX < this.lastX ? -1 : 0);
+                    if (dir !== 0 && this.lastMoveDir !== 0 && dir !== this.lastMoveDir) {
+                        this.turns++;
+                    }
+                    if (dir !== 0) this.lastMoveDir = dir;
+                    
+                    this.lastX = playerX;
+                }
+                
+                if (dangerFlag) this.dangerTime += dtMs;
+                
+                // リアルタイム危険度記録
+                this.recentDanger.push({ time: now, danger: dangerFlag ? dtMs : 0 });
+                
+                // 古いデータを削除（3秒以上前）
+                const cutoff = now - this.windowMs;
+                this.recentShots = this.recentShots.filter(s => s.time > cutoff);
+                this.recentDanger = this.recentDanger.filter(d => d.time > cutoff);
+            }
         };
         
-        function analyzeType() {
-            const data = personalityData;
+        // ===== リアルタイム指標更新 =====
+        function updateLiveMetrics() {
+            const now = performance.now();
             
-            // 基本統計
-            const accuracy = data.hits / Math.max(data.totalShots, 1);
-            const avgTimeBetweenShots = data.timeBetweenShots.length > 0 
-                ? data.timeBetweenShots.reduce((a, b) => a + b, 0) / data.timeBetweenShots.length 
-                : 1000;
-            const shotVariance = data.timeBetweenShots.length > 1 
-                ? Math.sqrt(data.timeBetweenShots.reduce((sum, t) => sum + Math.pow(t - avgTimeBetweenShots, 2), 0) / data.timeBetweenShots.length)
-                : 0;
+            console.log('updateLiveMetrics:', {
+                recentShots: tracker.recentShots.length,
+                recentDanger: tracker.recentDanger.length,
+                now: now,
+                windowMs: tracker.windowMs,
+                shotsData: tracker.recentShots.slice(0, 3) // 最初の3件を表示
+            });
             
-            // 移動パターン分析
-            const movementVariety = new Set(data.movementPattern.slice(-30)).size;
-            const moveBalance = data.leftMoves > 0 && data.rightMoves > 0
-                ? Math.min(data.leftMoves, data.rightMoves) / Math.max(data.leftMoves, data.rightMoves)
-                : 0;
+            // ① 攻撃テンポ (shots/sec in last 3 seconds)
+            const shotCount = tracker.recentShots.length;
+            const shotsPerSec = shotCount / 3;
+            const attackPercent = Math.min(100, (shotsPerSec / 4) * 100); // 4shots/sec = 100%
+            document.getElementById('attackBar').style.width = attackPercent + '%';
+            document.getElementById('attackValue').textContent = shotsPerSec.toFixed(1);
             
-            // リスク指標
-            const riskTaking = (data.dangerZoneShooting + data.recklessExposure + data.panicShots) / Math.max(data.playTime / 1000, 1);
-            const cautiousness = (data.cautiousWaitTime + data.sniperShots * 500 + data.shieldProtectionUsage) / Math.max(data.playTime, 1);
+            console.log('Attack:', shotsPerSec.toFixed(1), 'shots/sec', 'shotCount:', shotCount);
             
-            // 行動タイプ判定ロジック（16タイプに明確に分ける）
-            let scores = {
-                E: 0, I: 0,  // 積極性 vs 慎重性
-                S: 0, N: 0,  // 具体志向 vs 全体志向
-                T: 0, F: 0,  // 合理重視 vs 感情配慮
-                J: 0, P: 0   // 計画性 vs 柔軟性
-            };
+            // ② 危険滞在率 (danger time / 3 seconds)
+            const totalDanger = tracker.recentDanger.reduce((sum, d) => sum + d.danger, 0);
+            const dangerPercent = (totalDanger / tracker.windowMs) * 100;
+            const dangerBar = document.getElementById('dangerBar');
+            dangerBar.style.width = Math.min(100, dangerPercent) + '%';
+            document.getElementById('dangerValue').textContent = Math.round(dangerPercent) + '%';
             
-            // ==================== E/I: 積極性 vs 慎重性 ====================
-            // 射撃の積極性
-            if (data.totalShots > 60) scores.E += 20;
-            else if (data.totalShots < 30) scores.I += 20;
-            else scores.I += 10;
+            console.log('Danger:', Math.round(dangerPercent) + '%');
             
-            // 連射傾向
-            if (data.rapidFireCount > 15) scores.E += 25;
-            else if (data.rapidFireCount < 5) scores.I += 25;
-            else scores.I += 10;
-            
-            // パニック射撃（超高速連射）
-            if (data.panicShots > 10) scores.E += 15;
-            else scores.I += 15;
-            
-            // 射撃間隔
-            if (avgTimeBetweenShots < 400) scores.E += 20;
-            else if (avgTimeBetweenShots > 800) scores.I += 20;
-            else scores.I += 5;
-            
-            // 移動の積極性
-            if (data.aggressiveMoves > data.defensiveMoves * 1.5) scores.E += 25;
-            else if (data.defensiveMoves > data.aggressiveMoves * 1.5) scores.I += 25;
-            else scores.I += 10;
-            
-            // 危険地帯での行動
-            if (data.dangerZoneShooting > 10) scores.E += 20;
-            else scores.I += 20;
-            
-            // 無謀な露出
-            if (data.recklessExposure > data.playTime * 0.3) scores.E += 15;
-            else scores.I += 15;
-            
-            // ==================== S/N: 具体志向 vs 全体志向 ====================
-            // 命中精度（具体的な狙い）
-            if (accuracy > 0.65) scores.S += 30;
-            else if (accuracy < 0.35) scores.N += 30;
-            else scores.S += 10;
-            
-            // 連続命中（集中力）
-            if (data.maxConsecutiveHits > 7) scores.S += 25;
-            else if (data.maxConsecutiveHits < 3) scores.N += 25;
-            else scores.S += 5;
-            
-            // スナイパー射撃（慎重な狙い）
-            if (data.sniperShots > 15) scores.S += 20;
-            else scores.N += 20;
-            
-            // 動きながらの射撃 vs 止まって射撃
-            if (data.shotWhileStill > data.shotWhileMoving * 1.5) scores.S += 20;
-            else if (data.shotWhileMoving > data.shotWhileStill * 1.5) scores.N += 20;
-            else scores.S += 5;
-            
-            // 移動パターンの多様性
-            if (movementVariety < 6) scores.S += 25; // ワンパターン = 具体志向
-            else if (movementVariety > 12) scores.N += 25; // 多様 = 全体志向
-            else scores.S += 10;
-            
-            // 位置取りの一貫性
-            if (data.steadyMovement > data.erraticMovement * 2) scores.S += 20;
-            else if (data.erraticMovement > data.steadyMovement) scores.N += 20;
-            else scores.S += 5;
-            
-            // ==================== T/F: 合理重視 vs 感情配慮 ====================
-            // ターゲット選択の効率性
-            const typeBalance = Math.abs(data.invadersByType[0] - data.invadersByType[2]);
-            if (data.highValueTargets > data.lowValueTargets * 1.5) scores.T += 30; // 高得点優先 = 合理的
-            else if (typeBalance < 2 && Object.values(data.invadersByType).every(v => v > 0)) scores.T += 20; // バランス良く = 合理的
-            else scores.F += 25;
-            
-            // シールド保護（自己防衛の合理性）
-            if (data.ownShieldDamage < 3) scores.T += 25; // シールドを大切に = 合理的
-            else if (data.ownShieldDamage > 10) scores.F += 25; // シールド気にしない = 感情的
-            else scores.T += 10;
-            
-            // 無駄撃ちの少なさ
-            if (data.wastedShots < data.totalShots * 0.2) scores.T += 20;
-            else if (data.wastedShots > data.totalShots * 0.5) scores.F += 20;
-            else scores.T += 5;
-            
-            // 効率的な射撃タイミング
-            if (data.wantedShots > data.totalShots * 0.6) scores.T += 25;
-            else scores.F += 25;
-            
-            // 最適位置取り
-            if (data.optimalPositioning > data.poorPositioning * 2) scores.T += 20;
-            else scores.F += 20;
-            
-            // 射撃リズムの安定性
-            if (shotVariance < avgTimeBetweenShots * 0.5) scores.T += 20; // 安定 = 計画的
-            else scores.F += 20;
-            
-            // ==================== J/P: 計画性 vs 柔軟性 ====================
-            // 移動の左右バランス
-            if (moveBalance > 0.75) scores.J += 30; // バランス良い = 計画的
-            else if (moveBalance < 0.4) scores.P += 30; // 偏り = 柔軟/適応的
-            else scores.J += 10;
-            
-            // 位置キープ vs 頻繁な移動
-            if (data.centerHoldCount > 20) scores.J += 25;
-            else if (data.rapidDirectionChanges > 30) scores.P += 25;
-            else scores.J += 10;
-            
-            // 一貫した行動パターン
-            if (data.consistencyScore > 0.7) scores.J += 25;
-            else if (data.adaptabilityScore > 0.7) scores.P += 25;
-            else scores.P += 10;
-            
-            // 射撃のリズム感
-            const rhythmStability = shotVariance / Math.max(avgTimeBetweenShots, 1);
-            if (rhythmStability < 0.3) scores.J += 20; // 安定したリズム = 計画的
-            else if (rhythmStability > 0.8) scores.P += 20; // 不規則 = 柔軟
-            else scores.J += 5;
-            
-            // 慎重な待機時間
-            if (data.cautiousWaitTime > data.playTime * 0.4) scores.J += 25;
-            else if (data.cautiousWaitTime < data.playTime * 0.1) scores.P += 25;
-            else scores.J += 10;
-            
-            // 反応速度の一貫性
-            if (data.reactionTimes.length > 5) {
-                const avgReaction = data.reactionTimes.reduce((a, b) => a + b, 0) / data.reactionTimes.length;
-                const reactionVar = Math.sqrt(data.reactionTimes.reduce((sum, t) => sum + Math.pow(t - avgReaction, 2), 0) / data.reactionTimes.length);
-                if (reactionVar < avgReaction * 0.3) scores.J += 20;
-                else scores.P += 20;
+            // 色変化
+            dangerBar.className = 'metric-fill';
+            if (dangerPercent < 30) {
+                dangerBar.classList.add('danger-low');
+            } else if (dangerPercent < 60) {
+                dangerBar.classList.add('danger-medium');
             } else {
-                scores.J += 10;
+                dangerBar.classList.add('danger-high');
             }
             
-            // 端と中央の使い分け
-            if (data.stayInCenterTime > data.stayInEdgeTime * 2) scores.J += 15; // 中央維持 = 計画的
-            else if (data.stayInEdgeTime > data.stayInCenterTime * 2) scores.P += 15; // 端使い = 柔軟
-            else scores.J += 5;
-            
-            // タイプを決定
-            const type = 
-                (scores.E >= scores.I ? 'E' : 'I') +
-                (scores.S >= scores.N ? 'S' : 'N') +
-                (scores.T >= scores.F ? 'T' : 'F') +
-                (scores.J >= scores.P ? 'J' : 'P');
-            
-            // パーセンテージを計算
-            const percentages = {
-                EI: Math.round(scores.E / (scores.E + scores.I) * 100),
-                SN: Math.round(scores.S / (scores.S + scores.N) * 100),
-                TF: Math.round(scores.T / (scores.T + scores.F) * 100),
-                JP: Math.round(scores.J / (scores.J + scores.P) * 100)
-            };
-            
-            return { type, scores, percentages, data };
+            // ③ 精密度 (hits / shots in last 5 shots or 3 seconds)
+            if (shotCount >= 3) {
+                const recentHits = tracker.recentShots.filter(s => s.hit).length;
+                const precisionPercent = (recentHits / shotCount) * 100;
+                document.getElementById('precisionBar').style.width = precisionPercent + '%';
+                document.getElementById('precisionValue').textContent = Math.round(precisionPercent) + '%';
+                console.log('Precision:', Math.round(precisionPercent) + '%', 'hits:', recentHits, 'shots:', shotCount);
+            } else {
+                document.getElementById('precisionBar').style.width = '0%';
+                document.getElementById('precisionValue').textContent = '--';
+            }
         }
         
-        function getTypeDescription(type) {
-            const descriptions = {
-                'INTJ': {
-                    title: '戦略家タイプ',
-                    desc: 'あなたは完璧な計画と正確な実行を重視するプレイヤーです。最小限の弾で最大の効果を狙い、無駄のない戦略的なプレイスタイルを持っています。'
+        // ===== 正規化 =====
+        function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+        function norm(x, min, max) {
+            if (max <= min) return 0;
+            return clamp01((x - min) / (max - min));
+        }
+        
+        // ===== 分析 =====
+        function analyzePlay(tr) {
+            const playTimeMs = Math.max(1, tr.tEnd - tr.tStart);
+            const playTime = playTimeMs / 1000;
+            const stable = playTime >= 3;
+            
+            const aggressionRaw = tr.shots / playTime;
+            const accuracyRaw = tr.hits / Math.max(1, tr.shots);
+            const efficiencyRaw = tr.kills / Math.max(1, tr.shots);
+            const mobilityRaw = tr.moveDist / playTime;
+            const riskRaw = (tr.dangerTime / playTimeMs);
+            const fixationRaw = 1 - (tr.turns / Math.max(1, tr.moveDist / 10));
+            const resilienceRaw = (tr.postHitShots / Math.max(1, tr.shots)) * 4;
+            
+            const aggression = stable ? norm(aggressionRaw, 0.5, 6.0) : 0.5;
+            const accuracy   = stable ? clamp01(accuracyRaw) : 0.5;
+            const efficiency = stable ? clamp01(efficiencyRaw) : 0.5;
+            const mobility   = stable ? norm(mobilityRaw, 20, 220) : 0.5;
+            const risk       = stable ? clamp01(riskRaw) : 0.5;
+            const fixation   = stable ? clamp01(fixationRaw) : 0.5;
+            const resilience = stable ? clamp01(resilienceRaw) : 0.5;
+            
+            const metrics = { playTime, aggression, accuracy, efficiency, mobility, risk, fixation, resilience };
+            
+            // ミニ称号
+            const minis = [];
+            minis.push(aggression >= 0.6 ? "《連射の求道者》" : "《静観する狙撃手》");
+            minis.push(mobility   >= 0.6 ? "《流動回避者》"   : "《定点制圧者》");
+            minis.push(risk       >= 0.6 ? "《危険域常駐型》" : "《安全圏設計士》");
+            minis.push(accuracy   >= 0.6 ? "《精密照準士》"   : "《弾幕実験者》");
+            minis.push(fixation   >= 0.6 ? "《手順固定者》"   : "《即興適応者》");
+            
+            // メイン称号
+            const types = [
+                {
+                    key: "front_processor",
+                    title: "《前線演算機》",
+                    tagline: "危険域で計算を回し続ける侵略者。",
+                    score: (m) => 0.35*m.risk + 0.25*m.aggression + 0.20*m.efficiency + 0.20*m.resilience
                 },
-                'INTP': {
-                    title: '論理学者タイプ',
-                    desc: 'あなたは実験的で分析的なプレイヤーです。様々なパターンを試し、最適解を見つけることを楽しんでいます。柔軟な思考で予測不能な動きをします。'
+                {
+                    key: "silent_dominator",
+                    title: "《静止する支配者》",
+                    tagline: "最小の動きで最大の結果を出す。",
+                    score: (m) => 0.35*(1-m.mobility) + 0.30*m.accuracy + 0.25*m.efficiency + 0.10*m.fixation
                 },
-                'ENTJ': {
-                    title: '指揮官タイプ',
-                    desc: 'あなたは積極的で決断力のあるプレイヤーです。リスクを恐れず、大胆に攻め続けることで勝利を掴みます。効率と結果を最優先します。'
+                {
+                    key: "flow_survivor",
+                    title: "《流動生存体》",
+                    tagline: "止まらないことで生き残る。",
+                    score: (m) => 0.45*m.mobility + 0.25*(1-m.risk) + 0.20*m.resilience + 0.10*(1-m.fixation)
                 },
-                'ENTP': {
-                    title: '討論者タイプ',
-                    desc: 'あなたは創造的で適応力の高いプレイヤーです。状況に応じて柔軟に戦略を変え、予想外の方法で敵を倒すことを楽しみます。'
+                {
+                    key: "pattern_architect",
+                    title: "《手順建築士》",
+                    tagline: "勝ち筋を固定して現実にする。",
+                    score: (m) => 0.40*m.fixation + 0.25*m.efficiency + 0.20*(1-m.mobility) + 0.15*(1-m.risk)
                 },
-                'INFJ': {
-                    title: '提唱者タイプ',
-                    desc: 'あなたは洞察力があり、計画的なプレイヤーです。長期的な視野で戦略を立て、慎重に一歩一歩前進します。理想的な勝利を追求します。'
+                {
+                    key: "barrage_engineer",
+                    title: "《弾幕工兵》",
+                    tagline: "試行回数で正解を掘り当てる。",
+                    score: (m) => 0.45*m.aggression + 0.20*(1-m.accuracy) + 0.20*m.resilience + 0.15*m.mobility
                 },
-                'INFP': {
-                    title: '仲介者タイプ',
-                    desc: 'あなたは独自のペースで楽しむプレイヤーです。勝利よりもプレイの過程を大切にし、自分なりのスタイルを貫きます。'
+                {
+                    key: "precision_surgeon",
+                    title: "《精密外科医》",
+                    tagline: "撃つのは必要な時だけ。",
+                    score: (m) => 0.50*m.accuracy + 0.30*m.efficiency + 0.20*(1-m.aggression)
                 },
-                'ENFJ': {
-                    title: '主人公タイプ',
-                    desc: 'あなたはバランス感覚に優れたプレイヤーです。積極的に攻めながらも、周囲の状況を見極める力があります。華やかで魅力的なプレイをします。'
+                {
+                    key: "adaptive_optimizer",
+                    title: "《場当たり最適化者》",
+                    tagline: "その瞬間が常に正解になる。",
+                    score: (m) => 0.35*(1-m.fixation) + 0.25*m.mobility + 0.25*m.resilience + 0.15*m.efficiency
                 },
-                'ENFP': {
-                    title: '運動家タイプ',
-                    desc: 'あなたは熱意あふれる自由なプレイヤーです。直感に従って動き、予測不可能な動きで敵を翻弄します。楽しさを最優先します。'
-                },
-                'ISTJ': {
-                    title: '管理者タイプ',
-                    desc: 'あなたは堅実で信頼性の高いプレイヤーです。確実な方法を繰り返し、ミスを最小限に抑えます。着実に目標を達成します。'
-                },
-                'ISFJ': {
-                    title: '擁護者タイプ',
-                    desc: 'あなたは慎重で丁寧なプレイヤーです。リスクを避け、安全な方法を選びながら、確実に前進します。細部にまで気を配ります。'
-                },
-                'ESTJ': {
-                    title: '幹部タイプ',
-                    desc: 'あなたは組織的で効率的なプレイヤーです。明確な計画に基づいて積極的に行動し、目標を確実に達成します。'
-                },
-                'ESFJ': {
-                    title: '領事官タイプ',
-                    desc: 'あなたは協調的で安定したプレイヤーです。バランスの取れたプレイで、着実に勝利を目指します。'
-                },
-                'ISTP': {
-                    title: '巨匠タイプ',
-                    desc: 'あなたは技術的で実践的なプレイヤーです。状況を冷静に分析し、最適なタイミングで正確に行動します。'
-                },
-                'ISFP': {
-                    title: '冒険家タイプ',
-                    desc: 'あなたは感覚的で柔軟なプレイヤーです。その場の雰囲気を楽しみながら、自然体でプレイします。'
-                },
-                'ESTP': {
-                    title: '起業家タイプ',
-                    desc: 'あなたは大胆で行動的なプレイヤーです。リスクを恐れず、スリルを楽しみながら積極的に攻めます。'
-                },
-                'ESFP': {
-                    title: 'エンターテイナータイプ',
-                    desc: 'あなたは陽気で自由なプレイヤーです。楽しさを最優先し、エネルギッシュなプレイで場を盛り上げます。'
+                {
+                    key: "safe_margin_designer",
+                    title: "《安全余白設計者》",
+                    tagline: "負けない戦場を作る。",
+                    score: (m) => 0.50*(1-m.risk) + 0.25*m.fixation + 0.15*m.efficiency + 0.10*m.accuracy
                 }
-            };
+            ];
             
-            return descriptions[type] || { title: '特殊タイプ', desc: 'あなたは独自のプレイスタイルを持つユニークなプレイヤーです。' };
-        }
-        
-        function updatePersonalityDisplay() {
-            // 最低限のデータがあるかチェック
-            if (personalityData.totalShots < 3) {
-                return;
+            let best = types[0];
+            let bestScore = -Infinity;
+            for (const t of types) {
+                const s = t.score(metrics);
+                if (s > bestScore) { bestScore = s; best = t; }
             }
             
-            const result = analyzeType();
+            // レア称号
+            let rare = null;
+            if (stable && tr.lifeLost === 0 && metrics.accuracy >= 0.7 && metrics.risk <= 0.35) {
+                rare = { title: "《無傷の審判者》", tagline: "一度も崩れずに侵略を裁いた。" };
+            } else if (stable && metrics.aggression >= 0.75 && metrics.mobility >= 0.7 && metrics.risk >= 0.6) {
+                rare = { title: "《暴風侵略者》", tagline: "弾と移動で世界を塗り替えた。" };
+            }
             
-            // バーとパーセンテージを更新
-            document.getElementById('eiBar').style.width = result.percentages.EI + '%';
-            document.getElementById('eiPercent').textContent = result.percentages.EI + '%';
+            // コメント生成
+            const comments = [];
+            comments.push(best.tagline);
             
-            document.getElementById('snBar').style.width = result.percentages.SN + '%';
-            document.getElementById('snPercent').textContent = result.percentages.SN + '%';
+            const feats = [];
+            feats.push(metrics.accuracy >= 0.65 ? "命中効率が高い。狙う価値がある時だけ撃ててる。" : "弾数で道を作るタイプ。試行回数が武器になってる。");
+            feats.push(metrics.mobility >= 0.65 ? "左右移動が多く、回避で生存率を上げる設計になってる。" : "位置を固定して制圧する傾向。照準と間合いで勝ってる。");
+            feats.push(metrics.risk >= 0.6 ? "危険帯に長く滞在してでも成果を取りに行く。" : "安全余白を保って、事故率を落とす動きが多い。");
             
-            document.getElementById('tfBar').style.width = result.percentages.TF + '%';
-            document.getElementById('tfPercent').textContent = result.percentages.TF + '%';
+            comments.push(feats[0]);
+            comments.push(feats[1]);
             
-            document.getElementById('jpBar').style.width = result.percentages.JP + '%';
-            document.getElementById('jpPercent').textContent = result.percentages.JP + '%';
+            if (metrics.risk >= 0.7 && tr.lifeLost >= 2) {
+                comments.push("攻めの滞在時間が長め。シールドの残りを'撤退の合図'にすると安定する。");
+            } else if (metrics.aggression <= 0.35 && tr.kills <= 2) {
+                comments.push("攻撃回数が少なめ。『迷ったら1発』のルールを入れると伸びる。");
+            } else {
+                comments.push("今の戦い方は完成度が高い。次は'1つだけ癖を変える'と伸びが見える。");
+            }
             
-            // 現在のタイプを表示
-            document.getElementById('currentMBTI').textContent = result.type;
+            return {
+                metrics,
+                minis,
+                mainTitle: best.title,
+                mainTagline: best.tagline,
+                rareTitle: rare?.title ?? null,
+                rareTagline: rare?.tagline ?? null,
+                comments
+            };
+        }
+        
+        // 危険判定
+        function calcDangerFlag(player, enemyBullets) {
+            for (const b of enemyBullets) {
+                const nearY = (b.y >= player.y - 80 && b.y <= player.y);
+                const nearX = Math.abs(b.x - player.x) <= 40;
+                if (nearY && nearX) return true;
+            }
+            return false;
         }
         
         function playSound(type) {
+            if (!audioContext) return;
+            
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             
@@ -899,7 +772,6 @@
             
             switch(type) {
                 case 'shoot':
-                    // プレイヤーの射撃音（高音のビープ）
                     oscillator.type = 'square';
                     oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
                     oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
@@ -908,9 +780,7 @@
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.1);
                     break;
-                    
                 case 'invaderShoot':
-                    // インベーダーの射撃音（低音）
                     oscillator.type = 'sawtooth';
                     oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
                     oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.15);
@@ -919,9 +789,7 @@
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.15);
                     break;
-                    
                 case 'explosion':
-                    // インベーダー撃破音（爆発音）
                     oscillator.type = 'sawtooth';
                     oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
                     oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.2);
@@ -930,9 +798,7 @@
                     oscillator.start(audioContext.currentTime);
                     oscillator.stop(audioContext.currentTime + 0.2);
                     break;
-                    
                 case 'hit':
-                    // プレイヤー被弾音（ダメージ音）
                     oscillator.type = 'triangle';
                     oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
                     oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.3);
@@ -957,12 +823,10 @@
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
         
-        // 確実に初期化されるまで待つ
         if (!canvasWidth || !canvasHeight) {
             resizeCanvas();
         }
         
-        // ゲーム状態
         let gameState = {
             score: 0,
             hiScore: parseInt(localStorage.getItem('invadersHiScore')) || 0,
@@ -972,14 +836,12 @@
             gameOver: false
         };
         
-        // プレイヤー
         class Player {
             constructor() {
                 this.width = 40;
                 this.height = 25;
                 this.x = canvasWidth / 2 - this.width / 2;
                 this.y = canvasHeight - 60;
-                // スマホでは移動速度をやや速く（コンストラクタ内で判定）
                 this.speed = (canvasWidth && canvasWidth < 600) ? 6 : 5;
                 this.color = '#00ff00';
             }
@@ -988,14 +850,9 @@
                 ctx.fillStyle = this.color;
                 ctx.shadowBlur = 10;
                 ctx.shadowColor = this.color;
-                
-                // 砲台の本体
                 ctx.fillRect(this.x + 15, this.y + 15, 10, 10);
-                // 砲台の台座
                 ctx.fillRect(this.x, this.y + 20, this.width, 5);
-                // 砲身
                 ctx.fillRect(this.x + 17, this.y + 5, 6, 10);
-                
                 ctx.shadowBlur = 0;
             }
             
@@ -1008,18 +865,14 @@
             }
         }
         
-        // 弾
         class Bullet {
             constructor(x, y, isPlayer = true) {
                 this.x = x;
                 this.y = y;
                 this.width = 3;
                 this.height = 10;
-                // スマホでは弾速を調整（コンストラクタ内で判定）
                 const isMobile = canvasWidth && canvasWidth < 600;
-                this.speed = isPlayer 
-                    ? (isMobile ? -9 : -7)  // プレイヤーの弾は速く
-                    : (isMobile ? 3 : 4);    // 敵の弾は遅く
+                this.speed = isPlayer ? (isMobile ? -9 : -7) : (isMobile ? 3 : 4);
                 this.isPlayer = isPlayer;
                 this.color = isPlayer ? '#00ff00' : '#ff0000';
             }
@@ -1041,7 +894,6 @@
             }
         }
         
-        // インベーダー
         class Invader {
             constructor(x, y, type) {
                 this.x = x;
@@ -1050,7 +902,6 @@
                 this.height = 25;
                 this.type = type;
                 this.alive = true;
-                this.animFrame = 0;
                 this.points = (3 - type) * 10 + 10;
             }
             
@@ -1064,23 +915,19 @@
                 const frame = Math.floor(Date.now() / 500) % 2;
                 const offset = frame * 3;
                 
-                // タイプ別のデザイン
                 if (this.type === 0) {
-                    // タコ型
                     ctx.fillRect(this.x + 8, this.y, 14, 5);
                     ctx.fillRect(this.x + 5, this.y + 5, 20, 10);
                     ctx.fillRect(this.x + offset, this.y + 15, 5, 5);
                     ctx.fillRect(this.x + 12, this.y + 15, 5, 5);
                     ctx.fillRect(this.x + 23 - offset, this.y + 15, 5, 5);
                 } else if (this.type === 1) {
-                    // カニ型
                     ctx.fillRect(this.x + 5, this.y + 5, 20, 10);
                     ctx.fillRect(this.x + offset, this.y, 5, 5);
                     ctx.fillRect(this.x + 23 - offset, this.y, 5, 5);
                     ctx.fillRect(this.x + offset, this.y + 15, 8, 5);
                     ctx.fillRect(this.x + 20 - offset, this.y + 15, 8, 5);
                 } else {
-                    // イカ型
                     ctx.fillRect(this.x + 10, this.y, 10, 5);
                     ctx.fillRect(this.x + 5, this.y + 5, 20, 10);
                     ctx.fillRect(this.x + 5 + offset, this.y + 15, 5, 5);
@@ -1091,7 +938,6 @@
             }
         }
         
-        // シールド
         class Shield {
             constructor(x, y) {
                 this.x = x;
@@ -1109,17 +955,11 @@
                 for (let row = 0; row < 4; row++) {
                     for (let col = 0; col < 6; col++) {
                         if (this.damage[row][col]) {
-                            // ドーム型のシールド
                             if ((row === 0 && (col === 0 || col === 5)) || 
                                 (row === 3 && (col === 2 || col === 3))) {
                                 continue;
                             }
-                            ctx.fillRect(
-                                this.x + col * blockW,
-                                this.y + row * blockH,
-                                blockW - 1,
-                                blockH - 1
-                            );
+                            ctx.fillRect(this.x + col * blockW, this.y + row * blockH, blockW - 1, blockH - 1);
                         }
                     }
                 }
@@ -1128,17 +968,13 @@
             checkHit(bullet) {
                 if (bullet.x >= this.x && bullet.x <= this.x + this.width &&
                     bullet.y >= this.y && bullet.y <= this.y + this.height) {
-                    
                     const col = Math.floor((bullet.x - this.x) / (this.width / 6));
                     const row = Math.floor((bullet.y - this.y) / (this.height / 4));
                     
                     if (row >= 0 && row < 4 && col >= 0 && col < 6) {
                         this.damage[row][col] = false;
-                        
-                        // 周囲のブロックもダメージ
                         if (Math.random() > 0.5 && col > 0) this.damage[row][col - 1] = false;
                         if (Math.random() > 0.5 && col < 5) this.damage[row][col + 1] = false;
-                        
                         return true;
                     }
                 }
@@ -1146,25 +982,19 @@
             }
         }
         
-        // ゲームオブジェクト
         let player;
         let invaders = [];
         let bullets = [];
         let shields = [];
         let invaderDirection = 1;
         let invaderSpeed = 1;
-        let invaderMoveDown = false;
         let lastShot = 0;
         let lastInvaderShot = 0;
+        let lastFrameTime = 0;
         
-        const keys = {
-            left: false,
-            right: false,
-            space: false
-        };
+        const keys = { left: false, right: false, space: false };
         
         function init() {
-            // 画面サイズ判定
             const isMobile = canvasWidth < 600;
             
             player = new Player();
@@ -1172,11 +1002,8 @@
             invaders = [];
             shields = [];
             invaderDirection = 1;
-            
-            // スマホ対応：画面サイズに応じて速度調整
             invaderSpeed = isMobile ? 0.5 + (gameState.level - 1) * 0.2 : 1 + (gameState.level - 1) * 0.3;
             
-            // インベーダーの生成（スマホでは配置を調整）
             const rows = 5;
             const cols = isMobile ? 8 : 11;
             const startX = isMobile ? 20 : 50;
@@ -1187,15 +1014,10 @@
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
                     const type = row < 1 ? 0 : row < 3 ? 1 : 2;
-                    invaders.push(new Invader(
-                        startX + col * spacingX,
-                        startY + row * spacingY,
-                        type
-                    ));
+                    invaders.push(new Invader(startX + col * spacingX, startY + row * spacingY, type));
                 }
             }
             
-            // シールドの生成（スマホでは位置を調整）
             const shieldY = isMobile ? canvasHeight - 180 : canvasHeight - 150;
             const shieldCount = isMobile ? 3 : 4;
             const shieldSpacing = canvasWidth / (shieldCount + 1);
@@ -1228,239 +1050,39 @@
                    rect1.y + rect1.height > rect2.y;
         }
         
-        function gameLoop() {
+        function gameLoop(currentTime) {
             if (!gameState.gameRunning) return;
+            
+            const dtMs = lastFrameTime ? currentTime - lastFrameTime : 16;
+            lastFrameTime = currentTime;
             
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             
             // プレイヤー移動
-            const prevX = player.x;
-            let moved = false;
+            if (keys.left) player.moveLeft();
+            if (keys.right) player.moveRight();
             
-            if (keys.left) {
-                player.moveLeft();
-                moved = true;
-                const now = Date.now();
-                if (now - personalityData.lastMoveTime > 100) {
-                    personalityData.leftMoves++;
-                    personalityData.movementPattern.push('L');
-                    
-                    // 方向転換検出
-                    if (personalityData.lastDirection === 'R') {
-                        personalityData.rapidDirectionChanges++;
-                    }
-                    personalityData.lastDirection = 'L';
-                    personalityData.lastMoveTime = now;
-                    
-                    // 防御的な動き判定（敵の弾が近い時の移動）
-                    const nearbyEnemyBullets = bullets.filter(b => 
-                        !b.isPlayer && Math.abs(b.x - player.x) < 50 && b.y > player.y - 100
-                    );
-                    if (nearbyEnemyBullets.length > 0) {
-                        personalityData.defensiveMoves++;
-                        if (nearbyEnemyBullets.some(b => b.y > player.y - 30)) {
-                            personalityData.lastSecondDodge++;
-                        }
-                    }
-                }
-            }
-            if (keys.right) {
-                player.moveRight();
-                moved = true;
-                const now = Date.now();
-                if (now - personalityData.lastMoveTime > 100) {
-                    personalityData.rightMoves++;
-                    personalityData.movementPattern.push('R');
-                    
-                    // 方向転換検出
-                    if (personalityData.lastDirection === 'L') {
-                        personalityData.rapidDirectionChanges++;
-                    }
-                    personalityData.lastDirection = 'R';
-                    personalityData.lastMoveTime = now;
-                    
-                    const nearbyEnemyBullets = bullets.filter(b => 
-                        !b.isPlayer && Math.abs(b.x - player.x) < 50 && b.y > player.y - 100
-                    );
-                    if (nearbyEnemyBullets.length > 0) {
-                        personalityData.defensiveMoves++;
-                        if (nearbyEnemyBullets.some(b => b.y > player.y - 30)) {
-                            personalityData.lastSecondDodge++;
-                        }
-                    }
-                }
-            }
+            // 危険判定
+            const enemyBullets = bullets.filter(b => !b.isPlayer);
+            const dangerFlag = calcDangerFlag(player, enemyBullets);
             
-            // 移動距離計算
-            const moveDistance = Math.abs(player.x - prevX);
-            personalityData.totalMoveDistance += moveDistance;
+            // トラッカー更新
+            tracker.update(currentTime, dtMs, player.x, dangerFlag);
             
-            // 位置記録
-            if (moveDistance > 0) {
-                personalityData.positionHistory.push(player.x);
-                if (Math.abs(player.x - personalityData.lastPlayerX) > player.width) {
-                    personalityData.lastPositionChangeTime = Date.now();
-                }
-                personalityData.lastPlayerX = player.x;
-            }
-            
-            // 中央/端の滞在時間
-            const centerZone = canvasWidth * 0.3;
-            const edgeZone = canvasWidth * 0.15;
-            if (player.x > centerZone && player.x < canvasWidth - centerZone) {
-                personalityData.stayInCenterTime += 16;
-                personalityData.centerHoldCount++;
-            }
-            if (player.x < edgeZone || player.x > canvasWidth - edgeZone) {
-                personalityData.stayInEdgeTime += 16;
-                personalityData.cornerUseCount++;
-            }
-            
-            // 攻撃的な動き判定（敵に近づく移動）
-            let aliveInvaders = invaders.filter(i => i.alive);
-            const nearestInvader = aliveInvaders.reduce((nearest, inv) => {
-                if (!nearest) return inv;
-                const distToInv = Math.abs(inv.x - player.x);
-                const distToNearest = Math.abs(nearest.x - player.x);
-                return distToInv < distToNearest ? inv : nearest;
-            }, null);
-            
-            if (nearestInvader && moveDistance > 0) {
-                const distBefore = Math.abs(prevX - nearestInvader.x);
-                const distAfter = Math.abs(player.x - nearestInvader.x);
-                
-                if (distAfter < distBefore) {
-                    personalityData.aggressiveMoves++;
-                    personalityData.advanceCount++;
-                } else if (distAfter > distBefore) {
-                    personalityData.retreatCount++;
-                }
-            }
-            
-            // 移動の安定性分析
-            if (personalityData.positionHistory.length > 10) {
-                const recent = personalityData.positionHistory.slice(-10);
-                const variance = recent.reduce((sum, x, i, arr) => {
-                    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-                    return sum + Math.pow(x - avg, 2);
-                }, 0) / recent.length;
-                
-                if (variance < 500) {
-                    personalityData.steadyMovement++;
-                } else {
-                    personalityData.erraticMovement++;
-                }
-            }
-            
-            // シールド利用分析
-            let behindShield = false;
-            for (let shield of shields) {
-                if (player.x >= shield.x - 20 && player.x <= shield.x + shield.width + 20 &&
-                    player.y > shield.y) {
-                    personalityData.shieldProtectionUsage += 16;
-                    behindShield = true;
-                    break;
-                }
-            }
-            
-            // 無防備な露出
-            const nearbyThreats = bullets.filter(b => !b.isPlayer && b.y > canvasHeight * 0.5);
-            if (nearbyThreats.length > 0 && !behindShield) {
-                personalityData.recklessExposure += 16;
-            }
-            
-            // プレイヤー射撃（スマホでは間隔を短く）
+            // プレイヤー射撃
             const shotCooldown = canvasWidth < 600 ? 350 : 500;
             if (keys.space && Date.now() - lastShot > shotCooldown) {
-                const now = Date.now();
-                const timeSinceLastShot = now - personalityData.lastShotTime;
-                
+                const now = performance.now(); // 修正: performance.nowに統一
                 bullets.push(new Bullet(player.x + player.width / 2, player.y, true));
                 playSound('shoot');
-                
-                personalityData.totalShots++;
-                personalityData.timeBetweenShots.push(timeSinceLastShot);
-                personalityData.shotPositions.push(player.x);
-                
-                // 移動中 vs 静止中の射撃
-                if (moved) {
-                    personalityData.shotWhileMoving++;
-                } else {
-                    personalityData.shotWhileStill++;
-                }
-                
-                // 連射判定
-                if (timeSinceLastShot < 600) {
-                    personalityData.rapidFireCount++;
-                }
-                
-                // パニック射撃（超高速連射）
-                if (timeSinceLastShot < 300) {
-                    personalityData.panicShots++;
-                }
-                
-                // スナイパー射撃（長時間待機後）
-                if (timeSinceLastShot > 1500) {
-                    personalityData.sniperShots++;
-                }
-                
-                // 危険地帯での射撃
-                const dangerousBullets = bullets.filter(b => 
-                    !b.isPlayer && Math.abs(b.x - player.x) < 60 && b.y > player.y - 150
-                );
-                if (dangerousBullets.length > 0) {
-                    personalityData.dangerZoneShooting++;
-                }
-                
-                // 射撃タイミングの評価
-                aliveInvaders = invaders.filter(i => i.alive);
-                if (aliveInvaders.length > 0) {
-                    const nearestInvader = aliveInvaders.reduce((nearest, inv) => {
-                        if (!nearest) return inv;
-                        const dist = Math.abs(inv.x + inv.width / 2 - (player.x + player.width / 2));
-                        const nearestDist = Math.abs(nearest.x + nearest.width / 2 - (player.x + player.width / 2));
-                        return dist < nearestDist ? inv : nearest;
-                    }, null);
-                    
-                    const alignment = Math.abs(nearestInvader.x + nearestInvader.width / 2 - (player.x + player.width / 2));
-                    if (alignment < 20) {
-                        personalityData.wantedShots++;
-                    } else if (alignment > 100) {
-                        personalityData.wastedShots++;
-                    }
-                    
-                    // ターゲット価値判定
-                    if (nearestInvader.type === 0) {
-                        personalityData.highValueTargets++;
-                    } else if (nearestInvader.type === 2) {
-                        personalityData.lowValueTargets++;
-                    }
-                }
-                
-                // 位置取りの評価
-                const isInGoodPosition = player.x > canvasWidth * 0.2 && player.x < canvasWidth * 0.8;
-                if (isInGoodPosition) {
-                    personalityData.optimalPositioning += 16;
-                } else {
-                    personalityData.poorPositioning += 16;
-                }
-                
-                personalityData.lastShotTime = now;
-                lastShot = now;
+                tracker.onShoot(now, false); // hitはあとで判定
+                lastShot = Date.now();
             }
-            
-            // 慎重な待機時間の計測
-            if (!keys.space && !keys.left && !keys.right) {
-                personalityData.cautiousWaitTime += 16; // フレーム時間
-            }
-            
-            // プレイ時間更新
-            personalityData.playTime = Date.now() - personalityData.startTime;
             
             // インベーダー移動
             let moveDown = false;
-            aliveInvaders = invaders.filter(inv => inv.alive);
+            const aliveInvaders = invaders.filter(inv => inv.alive);
             
             if (aliveInvaders.length > 0) {
                 const leftmost = Math.min(...aliveInvaders.map(inv => inv.x));
@@ -1476,7 +1098,6 @@
             invaders.forEach(invader => {
                 if (invader.alive) {
                     if (moveDown) {
-                        // スマホでは下降幅を小さく
                         const dropDistance = canvasWidth < 600 ? 10 : 20;
                         invader.y += dropDistance;
                     } else {
@@ -1484,8 +1105,6 @@
                     }
                     invader.draw();
                     
-                    // ゲームオーバー判定（インベーダーが下に到達）
-                    // スマホではより余裕を持たせる
                     const dangerZone = canvasWidth < 600 ? player.y - 20 : player.y;
                     if (invader.y + invader.height >= dangerZone) {
                         gameState.lives = 0;
@@ -1494,7 +1113,7 @@
                 }
             });
             
-            // インベーダーの射撃（スマホでは頻度を下げる）
+            // インベーダー射撃
             const shotInterval = canvasWidth < 600 ? 1500 : 1000;
             if (Date.now() - lastInvaderShot > shotInterval && aliveInvaders.length > 0) {
                 const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
@@ -1510,50 +1129,22 @@
                 
                 if (bullet.isOffScreen()) return false;
                 
-                // シールドとの衝突
                 for (let shield of shields) {
-                    if (shield.checkHit(bullet)) {
-                        if (!bullet.isPlayer) {
-                            personalityData.shieldHits++;
-                        } else {
-                            // 自分の弾でシールドを壊した
-                            personalityData.ownShieldDamage++;
-                        }
-                        return false;
-                    }
+                    if (shield.checkHit(bullet)) return false;
                 }
                 
                 if (bullet.isPlayer) {
-                    // プレイヤーの弾とインベーダーの衝突
                     for (let invader of invaders) {
                         if (invader.alive && checkCollision(bullet, invader)) {
                             invader.alive = false;
                             playSound('explosion');
+                            tracker.onHitEnemy();
+                            tracker.onKillEnemy();
                             
-                            // 性格診断データ記録
-                            personalityData.hits++;
-                            personalityData.invadersByType[invader.type]++;
-                            personalityData.consecutiveHits++;
-                            personalityData.maxConsecutiveHits = Math.max(
-                                personalityData.maxConsecutiveHits, 
-                                personalityData.consecutiveHits
-                            );
-                            personalityData.consecutiveMisses = 0;
-                            
-                            // 距離分析
-                            aliveInvaders = invaders.filter(i => i.alive);
-                            if (aliveInvaders.length > 0) {
-                                const distances = aliveInvaders.map(i => 
-                                    Math.sqrt(Math.pow(i.x - invader.x, 2) + Math.pow(i.y - invader.y, 2))
-                                );
-                                const avgDist = distances.reduce((a, b) => a + b, 0) / distances.length;
-                                const minDist = Math.min(...distances);
-                                
-                                if (minDist < avgDist * 0.5) {
-                                    personalityData.closestKills++;
-                                } else if (minDist > avgDist * 1.5) {
-                                    personalityData.farthestKills++;
-                                }
+                            // 直近の射撃をhitとしてマーク
+                            const recentShot = tracker.recentShots[tracker.recentShots.length - 1];
+                            if (recentShot && currentTime - recentShot.time < 1000) {
+                                recentShot.hit = true;
                             }
                             
                             gameState.score += invader.points;
@@ -1567,22 +1158,12 @@
                             return false;
                         }
                     }
-                    // ミス時
-                    if (bullet.y < 0) {
-                        personalityData.misses++;
-                        personalityData.consecutiveHits = 0;
-                        personalityData.consecutiveMisses++;
-                        personalityData.maxConsecutiveMisses = Math.max(
-                            personalityData.maxConsecutiveMisses,
-                            personalityData.consecutiveMisses
-                        );
-                    }
                 } else {
-                    // インベーダーの弾とプレイヤーの衝突
                     if (checkCollision(bullet, player)) {
                         playSound('hit');
                         gameState.lives--;
                         updateLives();
+                        tracker.onLifeLost(performance.now()); // 修正
                         
                         if (gameState.lives <= 0) {
                             endGame();
@@ -1596,235 +1177,109 @@
                 return true;
             });
             
-            // シールド描画
             shields.forEach(shield => shield.draw());
-            
-            // プレイヤー描画
             player.draw();
             
-            // 全滅チェック
             if (invaders.every(inv => !inv.alive)) {
                 gameState.level++;
                 init();
             }
             
-            // 一貫性と適応性の計算
-            if (personalityData.positionHistory.length > 20) {
-                const recentPos = personalityData.positionHistory.slice(-20);
-                const variance = recentPos.reduce((sum, x, i, arr) => {
-                    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-                    return sum + Math.pow(x - avg, 2);
-                }, 0) / recentPos.length;
-                personalityData.consistencyScore = Math.max(0, 1 - variance / 10000);
-            }
-            
-            if (personalityData.movementPattern.length > 20) {
-                const uniqueMoves = new Set(personalityData.movementPattern.slice(-20)).size;
-                personalityData.adaptabilityScore = uniqueMoves / 20;
-            }
-            
-            // 性格診断のリアルタイム更新（0.5秒ごと）
-            if (Math.floor(Date.now() / 500) % 1 === 0) {
-                updatePersonalityDisplay();
-            }
+            // リアルタイム指標更新（毎フレーム呼ぶ - テスト用）
+            updateLiveMetrics();
             
             requestAnimationFrame(gameLoop);
         }
         
         function startGame() {
+            console.log('startGame called');
+            initAudio();
+            
             gameState.score = 0;
             gameState.lives = 3;
             gameState.level = 1;
             gameState.gameRunning = true;
             gameState.gameOver = false;
+            lastFrameTime = 0;
             
-            // 性格診断データをリセット
-            personalityData = {
-                totalShots: 0,
-                hits: 0,
-                misses: 0,
-                leftMoves: 0,
-                rightMoves: 0,
-                totalMoveDistance: 0,
-                movementPattern: [],
-                positionHistory: [],
-                stayInCenterTime: 0,
-                stayInEdgeTime: 0,
-                rapidDirectionChanges: 0,
-                timeBetweenShots: [],
-                shotPositions: [],
-                shotWhileMoving: 0,
-                shotWhileStill: 0,
-                rapidFireCount: 0,
-                sniperShots: 0,
-                panicShots: 0,
-                invadersByType: {0: 0, 1: 0, 2: 0},
-                highValueTargets: 0,
-                lowValueTargets: 0,
-                closestKills: 0,
-                farthestKills: 0,
-                shieldHits: 0,
-                ownShieldDamage: 0,
-                shieldProtectionUsage: 0,
-                recklessExposure: 0,
-                cautiousWaitTime: 0,
-                aggressiveMoves: 0,
-                defensiveMoves: 0,
-                cornerUseCount: 0,
-                centerHoldCount: 0,
-                retreatCount: 0,
-                advanceCount: 0,
-                dangerZoneShooting: 0,
-                lastSecondDodge: 0,
-                closeCallCount: 0,
-                perfectDodgeCount: 0,
-                movementVariety: 0,
-                shootingRhythm: [],
-                reactionTimes: [],
-                decisionSpeed: [],
-                consecutiveHits: 0,
-                maxConsecutiveHits: 0,
-                consecutiveMisses: 0,
-                maxConsecutiveMisses: 0,
-                playTime: 0,
-                startTime: Date.now(),
-                lastMoveTime: Date.now(),
-                lastShotTime: Date.now(),
-                lastPositionChangeTime: Date.now(),
-                wantedShots: 0,
-                wastedShots: 0,
-                optimalPositioning: 0,
-                poorPositioning: 0,
-                erraticMovement: 0,
-                steadyMovement: 0,
-                consistencyScore: 0,
-                adaptabilityScore: 0,
-                lastDirection: null,
-                lastPlayerX: canvasWidth / 2
-            };
+            console.log('Canvas size:', canvasWidth, canvasHeight);
+            
+            // トラッカー初期化
+            Object.assign(tracker, {
+                tStart: 0, tEnd: 0, shots: 0, hits: 0, kills: 0,
+                moveDist: 0, turns: 0, dangerTime: 0, lifeLost: 0,
+                lastHitAt: -Infinity, postHitWindowMs: 2500,
+                postHitShots: 0, postHitMove: 0,
+                lastX: null, lastMoveDir: 0,
+                recentShots: [], recentDanger: [], windowMs: 3000
+            });
             
             startScreen.classList.add('hidden');
             gameOverScreen.classList.add('hidden');
+            document.getElementById('liveMetrics').classList.add('active');
             
-            // パーソナリティパネルを表示
-            document.getElementById('personalityPanel').classList.add('active');
-            
-            // 初期状態にリセット
-            document.getElementById('currentMBTI').textContent = '----';
-            ['eiBar', 'snBar', 'tfBar', 'jpBar'].forEach(id => {
-                document.getElementById(id).style.width = '50%';
-            });
-            ['eiPercent', 'snPercent', 'tfPercent', 'jpPercent'].forEach(id => {
-                document.getElementById(id).textContent = '50%';
-            });
-            
+            console.log('Calling init()');
             init();
-            gameLoop();
+            console.log('Player created at:', player.x);
+            tracker.start(performance.now(), player.x);
+            console.log('Starting game loop');
+            requestAnimationFrame(gameLoop);
         }
         
         function endGame() {
             gameState.gameRunning = false;
             gameState.gameOver = true;
             
-            // パーソナリティパネルを非表示
-            document.getElementById('personalityPanel').classList.remove('active');
+            document.getElementById('liveMetrics').classList.remove('active');
+            
+            tracker.end(performance.now());
+            const result = analyzePlay(tracker);
             
             finalScoreEl.textContent = gameState.score.toString().padStart(4, '0');
             
-            // タイプ分析を実行
-            const result = analyzeType();
-            const desc = getTypeDescription(result.type);
+            // 結果表示
+            let html = '';
             
-            // 診断結果を表示
-            const mbtiResultEl = document.getElementById('mbtiResult');
-            mbtiResultEl.innerHTML = `
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div style="font-size: 20px; color: #00ff00; text-shadow: 0 0 20px #00ff00; margin-bottom: 10px;">
-                        ${result.type}型
-                    </div>
-                    <div style="font-size: 12px; margin-bottom: 20px;">
-                        ${desc.title}
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 20px; font-size: 9px;">
-                    ${desc.desc}
-                </div>
-                
-                <div style="font-size: 8px; line-height: 2;">
-                    <div style="margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>積極性(E)</span>
-                            <span>${result.percentages.EI}%</span>
-                            <span>${100 - result.percentages.EI}%</span>
-                            <span>慎重性(I)</span>
-                        </div>
-                        <div style="background: #003300; height: 6px; margin-top: 3px;">
-                            <div style="background: #00ff00; height: 100%; width: ${result.percentages.EI}%;"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>具体志向(S)</span>
-                            <span>${result.percentages.SN}%</span>
-                            <span>${100 - result.percentages.SN}%</span>
-                            <span>全体志向(N)</span>
-                        </div>
-                        <div style="background: #003300; height: 6px; margin-top: 3px;">
-                            <div style="background: #00ff00; height: 100%; width: ${result.percentages.SN}%;"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>合理重視(T)</span>
-                            <span>${result.percentages.TF}%</span>
-                            <span>${100 - result.percentages.TF}%</span>
-                            <span>感情配慮(F)</span>
-                        </div>
-                        <div style="background: #003300; height: 6px; margin-top: 3px;">
-                            <div style="background: #00ff00; height: 100%; width: ${result.percentages.TF}%;"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>計画性(J)</span>
-                            <span>${result.percentages.JP}%</span>
-                            <span>${100 - result.percentages.JP}%</span>
-                            <span>柔軟性(P)</span>
-                        </div>
-                        <div style="background: #003300; height: 6px; margin-top: 3px;">
-                            <div style="background: #00ff00; height: 100%; width: ${result.percentages.JP}%;"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div style="margin-top: 20px; font-size: 8px; color: #00aa00; text-align: center;">
-                    命中率: ${Math.round(result.data.hits / Math.max(result.data.totalShots, 1) * 100)}% | 
-                    総射撃: ${result.data.totalShots} | 
-                    撃破数: ${result.data.hits}
-                </div>
-                
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #004400; font-size: 7px; color: #00aa00; line-height: 1.6;">
-                    ※ この結果はゲーム内行動をもとにした<br>
-                    娯楽目的の分析です。<br>
-                    心理学的診断ではありません。
-                </div>
-            `;
+            if (result.rareTitle) {
+                html += `<div class="rare-title">${result.rareTitle}</div>`;
+                html += `<div class="tagline">${result.rareTagline}</div>`;
+            }
             
+            html += `<div class="main-title">${result.mainTitle}</div>`;
+            html += `<div class="tagline">${result.mainTagline}</div>`;
+            
+            html += `<div class="mini-titles">`;
+            result.minis.slice(0, 3).forEach(m => {
+                html += `${m}<br>`;
+            });
+            html += `</div>`;
+            
+            html += `<div class="comments">`;
+            result.comments.forEach(c => {
+                html += `${c}<br><br>`;
+            });
+            html += `</div>`;
+            
+            html += `<div class="metrics">`;
+            html += `[詳細指標]<br>`;
+            html += `攻撃密度: ${(result.metrics.aggression * 100).toFixed(0)}% | `;
+            html += `精密度: ${(result.metrics.accuracy * 100).toFixed(0)}%<br>`;
+            html += `機動性: ${(result.metrics.mobility * 100).toFixed(0)}% | `;
+            html += `リスク: ${(result.metrics.risk * 100).toFixed(0)}%<br>`;
+            html += `固着度: ${(result.metrics.fixation * 100).toFixed(0)}% | `;
+            html += `レジリエンス: ${(result.metrics.resilience * 100).toFixed(0)}%<br>`;
+            html += `<br>総射撃: ${tracker.shots} | 命中: ${tracker.hits} | 撃破: ${tracker.kills}<br>`;
+            html += `プレイ時間: ${result.metrics.playTime.toFixed(1)}秒`;
+            html += `</div>`;
+            
+            resultContainer.innerHTML = html;
             gameOverScreen.classList.remove('hidden');
         }
         
-        // イベントリスナー
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') keys.left = true;
             if (e.key === 'ArrowRight') keys.right = true;
-            if (e.key === ' ') {
-                e.preventDefault();
-                keys.space = true;
-            }
+            if (e.key === ' ') { e.preventDefault(); keys.space = true; }
         });
         
         document.addEventListener('keyup', (e) => {
@@ -1836,53 +1291,27 @@
         startButton.addEventListener('click', startGame);
         retryButton.addEventListener('click', startGame);
         
-        // モバイルコントロール
         const leftBtn = document.getElementById('leftBtn');
         const rightBtn = document.getElementById('rightBtn');
         const fireBtn = document.getElementById('fireBtn');
         
-        // タッチ操作
-        leftBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys.left = true;
-        });
-        leftBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys.left = false;
-        });
+        leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keys.left = true; });
+        leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); keys.left = false; });
+        rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keys.right = true; });
+        rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); keys.right = false; });
+        fireBtn.addEventListener('touchstart', (e) => { e.preventDefault(); keys.space = true; });
+        fireBtn.addEventListener('touchend', (e) => { e.preventDefault(); keys.space = false; });
         
-        rightBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys.right = true;
-        });
-        rightBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys.right = false;
-        });
-        
-        fireBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keys.space = true;
-        });
-        fireBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keys.space = false;
-        });
-        
-        // マウス操作（デスクトップでもボタンが使える）
         leftBtn.addEventListener('mousedown', () => keys.left = true);
         leftBtn.addEventListener('mouseup', () => keys.left = false);
         leftBtn.addEventListener('mouseleave', () => keys.left = false);
-        
         rightBtn.addEventListener('mousedown', () => keys.right = true);
         rightBtn.addEventListener('mouseup', () => keys.right = false);
         rightBtn.addEventListener('mouseleave', () => keys.right = false);
-        
         fireBtn.addEventListener('mousedown', () => keys.space = true);
         fireBtn.addEventListener('mouseup', () => keys.space = false);
         fireBtn.addEventListener('mouseleave', () => keys.space = false);
         
-        // 初期表示
         updateScore();
         updateLives();
     </script>
