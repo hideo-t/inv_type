@@ -586,8 +586,12 @@
         };
         
         // ===== リアルタイム指標更新 =====
-        function updateLiveMetrics() {
-            const now = performance.now();
+        let lastMetricsUpdate = 0;
+        const METRICS_UPDATE_INTERVAL = 100; // 100msごとに更新
+        
+        function updateLiveMetrics(now) {
+            if (now - lastMetricsUpdate < METRICS_UPDATE_INTERVAL) return;
+            lastMetricsUpdate = now;
             
             // ① 攻撃テンポ (shots/sec in last 3 seconds)
             const shotCount = tracker.recentShots.length;
@@ -855,7 +859,8 @@
                 // モバイルでボタンと重ならないよう位置を調整
                 const isMobile = canvasWidth && canvasWidth < 600;
                 this.y = isMobile ? canvasHeight - 90 : canvasHeight - 60;
-                this.speed = (canvasWidth && canvasWidth < 600) ? 6 : 5;
+                // 速度を px/秒 で定義
+                this.speed = 300; // 300 px/秒
                 this.color = '#00ff00';
             }
             
@@ -869,12 +874,12 @@
                 ctx.shadowBlur = 0;
             }
             
-            moveLeft() {
-                this.x = Math.max(0, this.x - this.speed);
+            moveLeft(dtSec) {
+                this.x = Math.max(0, this.x - this.speed * dtSec);
             }
             
-            moveRight() {
-                this.x = Math.min(canvasWidth - this.width, this.x + this.speed);
+            moveRight(dtSec) {
+                this.x = Math.min(canvasWidth - this.width, this.x + this.speed * dtSec);
             }
         }
         
@@ -884,14 +889,14 @@
                 this.y = y;
                 this.width = 3;
                 this.height = 10;
-                const isMobile = canvasWidth && canvasWidth < 600;
-                this.speed = isPlayer ? (isMobile ? -9 : -7) : (isMobile ? 3 : 4);
+                // 速度を px/秒 で定義
+                this.speed = isPlayer ? -450 : 250; // プレイヤー弾: 450px/秒上方向、敵弾: 250px/秒下方向
                 this.isPlayer = isPlayer;
                 this.color = isPlayer ? '#00ff00' : '#ff0000';
             }
             
-            update() {
-                this.y += this.speed;
+            update(dtSec) {
+                this.y += this.speed * dtSec;
             }
             
             draw() {
@@ -1000,7 +1005,7 @@
         let bullets = [];
         let shields = [];
         let invaderDirection = 1;
-        let invaderSpeed = 1;
+        let invaderSpeed = 1; // px/秒で定義
         let lastShot = 0;
         let lastInvaderShot = 0;
         let lastFrameTime = 0;
@@ -1015,7 +1020,8 @@
             invaders = [];
             shields = [];
             invaderDirection = 1;
-            invaderSpeed = isMobile ? 0.5 + (gameState.level - 1) * 0.2 : 1 + (gameState.level - 1) * 0.3;
+            // インベーダーの速度を px/秒 で定義
+            invaderSpeed = 60 + (gameState.level - 1) * 20; // レベル1: 60px/秒, レベル2: 80px/秒...
             
             const rows = 5;
             const cols = isMobile ? 8 : 11;
@@ -1066,15 +1072,20 @@
         function gameLoop(currentTime) {
             if (!gameState.gameRunning) return;
             
+            // デルタタイムの計算（秒単位）
             const dtMs = lastFrameTime ? currentTime - lastFrameTime : 16;
+            const dtSec = dtMs / 1000;
             lastFrameTime = currentTime;
+            
+            // dtSecが異常に大きい場合（タブを切り替えた場合など）は制限
+            const clampedDtSec = Math.min(dtSec, 0.1); // 最大100ms
             
             ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             
-            // プレイヤー移動
-            if (keys.left) player.moveLeft();
-            if (keys.right) player.moveRight();
+            // プレイヤー移動（デルタタイムベース）
+            if (keys.left) player.moveLeft(clampedDtSec);
+            if (keys.right) player.moveRight(clampedDtSec);
             
             // 危険判定
             const enemyBullets = bullets.filter(b => !b.isPlayer);
@@ -1083,17 +1094,16 @@
             // トラッカー更新
             tracker.update(currentTime, dtMs, player.x, dangerFlag);
             
-            // プレイヤー射撃
-            const shotCooldown = canvasWidth < 600 ? 350 : 500;
-            if (keys.space && Date.now() - lastShot > shotCooldown) {
-                const now = performance.now(); // 修正: performance.nowに統一
+            // プレイヤー射撃（時間ベース）
+            const shotCooldown = 350; // ms
+            if (keys.space && currentTime - lastShot > shotCooldown) {
                 bullets.push(new Bullet(player.x + player.width / 2, player.y, true));
                 playSound('shoot');
-                tracker.onShoot(now, false); // hitはあとで判定
-                lastShot = Date.now();
+                tracker.onShoot(currentTime, false); // hitはあとで判定
+                lastShot = currentTime;
             }
             
-            // インベーダー移動
+            // インベーダー移動（デルタタイムベース）
             let moveDown = false;
             const aliveInvaders = invaders.filter(inv => inv.alive);
             
@@ -1111,10 +1121,10 @@
             invaders.forEach(invader => {
                 if (invader.alive) {
                     if (moveDown) {
-                        const dropDistance = canvasWidth < 600 ? 10 : 20;
+                        const dropDistance = 20;
                         invader.y += dropDistance;
                     } else {
-                        invader.x += invaderDirection * invaderSpeed;
+                        invader.x += invaderDirection * invaderSpeed * clampedDtSec;
                     }
                     invader.draw();
                     
@@ -1126,18 +1136,18 @@
                 }
             });
             
-            // インベーダー射撃
-            const shotInterval = canvasWidth < 600 ? 1500 : 1000;
-            if (Date.now() - lastInvaderShot > shotInterval && aliveInvaders.length > 0) {
+            // インベーダー射撃（時間ベース）
+            const shotInterval = 1200; // ms
+            if (currentTime - lastInvaderShot > shotInterval && aliveInvaders.length > 0) {
                 const shooter = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
                 bullets.push(new Bullet(shooter.x + shooter.width / 2, shooter.y + shooter.height, false));
                 playSound('invaderShoot');
-                lastInvaderShot = Date.now();
+                lastInvaderShot = currentTime;
             }
             
-            // 弾の更新
+            // 弾の更新（デルタタイムベース）
             bullets = bullets.filter(bullet => {
-                bullet.update();
+                bullet.update(clampedDtSec);
                 bullet.draw();
                 
                 if (bullet.isOffScreen()) return false;
@@ -1176,7 +1186,7 @@
                         playSound('hit');
                         gameState.lives--;
                         updateLives();
-                        tracker.onLifeLost(performance.now()); // 修正
+                        tracker.onLifeLost(currentTime);
                         
                         if (gameState.lives <= 0) {
                             endGame();
@@ -1198,8 +1208,8 @@
                 init();
             }
             
-            // リアルタイム指標更新（毎フレーム呼ぶ - テスト用）
-            updateLiveMetrics();
+            // リアルタイム指標更新（100msごと）
+            updateLiveMetrics(currentTime);
             
             requestAnimationFrame(gameLoop);
         }
@@ -1213,6 +1223,7 @@
             gameState.gameRunning = true;
             gameState.gameOver = false;
             lastFrameTime = 0;
+            lastMetricsUpdate = 0;
             
             // トラッカー初期化
             Object.assign(tracker, {
